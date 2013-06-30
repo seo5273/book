@@ -314,8 +314,7 @@ delete, new, typeof, +, -, ! 	| 단항 연산자
 +, -							| 더하기/연결, 빼기
 <=, >=, >, <					| 같지 않음 비교
 ===, !==						| 동등
-&&								| 논리적 and
-\|\|							| 논리적 or
+&&, ||							| 논리적 and
 ? :								| 삼항
 
 ##### typeof 연산자의 결과값에는 number, string, boolean, undefined, function, object 등이 있다.  
