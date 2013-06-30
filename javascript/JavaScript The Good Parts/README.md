@@ -145,7 +145,7 @@ var 문은 "함수 내부"에서 사용될 때 함수의 private 변수를 정�
 다른 언어들과 달리 자바스크립트에서 블록 (ex: if {…})은 새로운 유효범의(scope)를 생성하지 않기 때문에  
 변수는 블록 안에서가 아니라 함수의 첫 부분에서 정의해야 한다.
 
-##### if문은 표현식의 값에 따라 프로그램의 흐름을 변경 한다.  
+##### if 문은 표현식의 값에 따라 프로그램의 흐름을 변경 한다.  
 다음은 참과 거짓에 해당하는 값들 이다.
 	
 	if (표현식) {
@@ -205,8 +205,8 @@ var 문은 "함수 내부"에서 사용될 때 함수의 private 변수를 정�
 			문장들
 		}
 
-	for in 형식은 보통 다음과 같이 object.hasOwnProperty(변수) 메소드로 속성 이름이 실제로 객체의 속성인지   
-	아니면 프로토타입 체인(prototype chain) 상에 있는 것인지를 확인하는 것이 필요하다.
+	`for in` 형식은 보통 다음과 같이 `object.hasOwnProperty(변수)` 메소드로 속성 이름이 실제로 객체의 속성인지   
+	아니면 `프로토타입 체인(prototype chain)` 상에 있는 것인지를 확인하는 것이 필요하다.
 
 		for (myvar in obj) {
 			if (obj.hasOwnProperty(myvar)) {
@@ -215,14 +215,14 @@ var 문은 "함수 내부"에서 사용될 때 함수의 private 변수를 정�
 		}
 		
 ##### do 문은 표현식이 블록을 실행한 후에 검사된다.
-do 문은 적어도 한번은 실행 된다.
+`do` 문은 적어도 한번은 실행 된다.
 
 		do {
 			문장들
 		} while (표현식);
 
-##### try문은 블록을 실행하면서 블록 내에서 발생하는 예외 상황을 포착한다.
-catch 절은 예외 객체를 받는 새로운 변수를 정의 한다.
+##### try 문은 블록을 실행하면서 블록 내에서 발생하는 예외 상황을 포착한다.
+`catch` 절은 예외 객체를 받는 새로운 변수를 정의 한다.
 
 		try {
 			문장들
@@ -231,36 +231,85 @@ catch 절은 예외 객체를 받는 새로운 변수를 정의 한다.
 			문장들
 		}
 		
-##### throw문은 예외를 발생 시킨다.
-만약 throw 문이 try 블록 안에 있으면 실행의 제어는 catch 절로 이동한다.  
+##### throw 문은 예외를 발생 시킨다.
+표현식 부분은 보통 `name`과 `message`라는 속성이 있는 객체 리터럴 이다.
+
+		try {
+			if (typeof a !== 'number') {
+				throw {
+					name: 'TypeError',
+					message: 'add needs numbers'
+				};
+			}
+		}
+		catch (e) {
+			consloe.log(e.name + ": " + e.message);
+		}
+
+만약 `throw` 문이 `try` 블록 안에 있으면 실행의 제어는 `catch` 절로 이동한다.  
 
 		try {
 			문장들	
 			throw 표현식;
 		}
-		catch (Exception e) {
+		catch (e) {
 			throw에 의한 실행의 제어
 		}
 
-만약 throw 문이 일반적인 함수 내에 있다면 함수 호출은 중단되고 함수를 호출한 try 문의 catch 절로 실행 흐름이 이동한다.
+만약 `throw` 문이 일반적인 함수 내에 있다면 함수 호출은 중단되고 함수를 호출한 `try` 문의 `catch` 절로 실행 흐름이 이동한다.
 
 		try {
 			문장들
 			함수();
 		}
-		catch (Exception e) {
+		catch (e) {
 			throw에 의한 실행의 제어
 		}
 		
 		function test () {
-		
 			문장들
-			
 			// 실행 중단
 			throw 표현식;
-			
 			문장들
 		};
+
+##### return 문은 함수가 호출한 곳으로 되돌아가는 역할을 한다.
+return 문은 표현식으로 반환값을 지정하고 지정되지 않으면 `undefined`를 반환한다. 
+
+		return 표현식;
+		
+##### break 문은 반복문이나 switch 문에서 흐름을 벗어나게 하는 역할을 한다.
+break 문은 라벨을 취할 수 있는 데 라벨이 주어지면 라벨이 붙은 문장의 끝으로 이동한다.
+
+		// 라벨 취소 가능
+		break;
+		
+		// 라벨 사용
+		break 라벨;		
+
+
+#### 06 | 표현식(Expressions)
+**********************************
+가장 간단한 표현식
+
+* 리터럴 값 (문자열이나 숫자)
+* 변수
+* 내장값들 (true, false, null, undefined, NaN, Infinity 등)
+* new 키워드에 의한 호출 표현식
+* delete 키워드 다음에 오는 세부지정 표현식
+* 괄호로 쌓인 표현식
+* 전치 연산자 다음에 이어지는 표현식
+* 이항 연산자의 표현식
+* ? 삼항 연산자의 표현식 (ex : a === 0 ? true : false )
+* 호출
+* 세부지정 (. 또는 [])
+
+연산자 우선 순위
+
+First Header | Second Header | Third Header
+------------ | ------------- | ------------
+Content Cell | Content Cell  | Content Cell
+Content Cell | Content Cell  | Content Cell
 
 
 ### 3. 객체
