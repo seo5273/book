@@ -2,7 +2,6 @@
 
 ### 1. 자바스크립트의 좋은 점들
 =========================
-
 이 책의 요점은 어떻게 하면 나쁜 점을 피해서 좋은 결과를 얻느냐는 것이다.    
 이 책에서는 자바스크립트의 진정한 본성을 드러내지 못 하는 우아하지 않은 기능들을 모두 제거해 버렸다.      
 전적으로 자바스크립트의 좋은 점에만 초점을 맞출 것이다.
@@ -71,8 +70,49 @@
 
 ### 2. 자바스크립트의 좋은 문법들
 =========================
+이번 장에서는 자바스크립트의 좋은 점들(good parts)에 해당하는 문법을 살펴본다.
 
+#### 01 | 공백(whitespace)
+---------------------------
+var 와 that 사이에 있는 빈 칸은 제거 할 수 없다. 하지만 다른 빈 칸들은 제거해도 상관 없다.  
+주석은 가능한 /\* \*/를 사용하는 대신 // 사용할 것을 권한다.
 
+	// 주석 : 공백
+	var that = this;
+
+#### 02 | 이름(Names)
+---------------------------
+이름(Name)은 하나의 문자나 그 뒤를 이어서 하나 이상의 `문자`, `숫자`, `_`가 붙는 문자열  
+`문장`, `변수`, `매개변수`, `속성명`, `연산자`, `라벨`등에 사용한다.
+
+다음에 나오는 예약어들은 이름(Name)이 될 수 없다.
+	
+	A: abstract
+	B: boolean, break,	byte
+	C: case, catch, char, class, const, continue
+	D: debugger, default, delete, do, double
+	E: else, enum, export, extends
+	F: false, final, finally, float, for, function
+	G: goto
+	I: if, implement, import, in, instanceof, int, interface
+	L: long
+	N: natvie, new, null
+	P: package, private, protected, public
+	R: return
+	S: short, static, super, switch, synchronized
+	T: this, throw, throws, transient, true, try, typeof
+	V: var, volatile, void
+	W: while, with
+
+#### 03 | 숫자(Numbers)
+---------------------------
+자바스크립트는 숫자형이 하나만 있다. 내부적으로 **숫자**는 `64비트 부동 소수점 형식`을 지닌다.  
+이는 자바의 double 형과 같고 정수와 실수의 구분이 없다.  
+즉 1과 1.0은 같은 값이다.
+
+`NaN`은 수치 연산을 해서 정상적인 값을 얻지 못 할때의 값이다. 또한 그 자신을 포함해서 어떤 값하고도 같지 않다.
+그러므로 `NaN`인지 확인하려면 비교 구문이 아니라 `isNaN()`이라는 함수를 사용한다.
+	
 
 ### 3. 객체
 
