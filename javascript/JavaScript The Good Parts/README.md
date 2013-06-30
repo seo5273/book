@@ -390,8 +390,227 @@ delete, new, typeof, +, -, ! 	| 단항 연산자
 자바스크립트의 객체는 클래스가 필요 없다.(class-free)  
 객체 하나는 다른 객체를 포함할 수 있기 때문에, 그래프나 트리 같은 자료구조를 쉽게 표현할 수 있다.
 
-##### 자바스크립트에는 객체 하나에 있는 속성들을 다른 객체에 상속하게 해주는 프로토타입(prototype) 연결 특성이 있다. 이 특성을 잘 활용하면, 객체를 초기화 하는 시간과 메모리 사용을 줄 일 수 있다.  
+	자바스크립트에는 객체 하나에 있는 속성들을 다른 객체에 상속하게 해주는 프로토타입(prototype) 연결 특성이 있다. 이 특성을 잘 활용하면, 객체를 초기화 하는 시간과 메모리 사용을 줄 일 수 있다.  
 
+#### 01 | 객체 리터럴
+이 표기법은 아무것도 없거나 하나 이상의 이름/값 쌍들을 둘러싸는 중괄호 이다.
+
+	var empty_object = {};
+	
+	var stooge = {
+		"first-name": "Jerome",
+		"last-name": "Howard"
+	};
+	
+	var 객체명 = {
+		속성 이름(property): 속성 값 || 표현식	// 속성 이름은 예약어가 이닐 경우 (") 삭제 가능
+	};
+	
+속성의 값은 어떠한 표현식도 가능하다. (다음의 예처럼 객체 리터럴도 가능. 중첩된 객체.)
+
+	var flight = {
+		airline: "Oceanic",
+		number: 515,
+		departure: {
+			IATA: "SYD",
+			time: "2014-09-22 14:55",
+			city: "Sydney"
+		},
+		arrival: {
+			IATA: "LAX",
+			time: "2015-09-22 14:55",
+			city: "Los Angeles"
+		}
+	};
+	
+#### 02 | 속성값 읽기
+******
+객체에 속한 속성의 값은 `속성 이름(property)`에 대괄호 또는 . 을 이용하여 읽을 수 있다.
+
+	stooge['first-name']			// "Jerome"
+	flight.departure.IATA			// "SYD" 
+	
+객체에 존재하지 않는 속성을 읽으려 하면 `undefined` 를 반환 한다.
+	
+	stooge['middle-name']			// undefined
+	flight.status					// undefined
+	
+|| 연산자를 사용하여 기본값 지정
+	
+	var middle = stooge['middle-name'] || '(none)';
+	var status = flight.status || 'unknown'; 
+
+존재 하지 않는 속성, 즉 `undefined` 의 속성을 참조하려 할 때 `TypeError` 예외가 발생 한다.  
+이런 상황을 방지하기 위해서 다음과 같이 && 연산자를 사용 할 수 있다.
+
+	flight.equipment				                   // undefined
+	flight.equipment.model						       // throw 'TypeError'
+	flight.equipment && flight.equipment.model	       // undefined
+		
+#### 03 | 속성 값의 갱신 및 속성 추가	
+****
+속성의 이름이 이미 존재 하면 속성의 값만 교체.
+	
+	stooge['first-name'] = "Eric";
+	
+속성이 객체 내에 존재 하지 않으면 속성을 객체에 추가.
+	
+	stooge['middle-name'] = 'Lester';
+	stooge.nickname = 'Curly';
+	flight.equipment = {
+		model: 'Boeing 777'
+	};
+	flight.status = 'overdue';
+	
+	console.log(stooge.nickname);				//'Curly'
+	
+#### 04 | 참조
+****
+객체는 참조 방식으로 전달 된다. 절대 복사 되지 않는 다. (C 의 메모리 주소 넘기는 것 처럼)
+
+	var x = stooge;
+	x.nickname = 'Curly';
+	var nick = stooge.nickname;
+	
+	console.log(nick);
+	
+	// x 와 stooge가 모두 같은 객체를 참조하기 때문에,
+	// 변수 nick의 값은 'Curly'.
+	
+#### 05 | 프로토타입(Prototype)
+****
+모든 객체는 속성을 상송하는 프로토타입 객체에 연결되어 있다.  
+객체 리터럴로 생성되는 모든 객체는 자바스크립트의 표준 객체인 `Object` 의 속성 인 `prototype 객체 (Object.prototype)` 에 연결 된다.
+
+객체를 생성할 때는 해당 객체의 프로토타입이 될 객체를 선택할 수 있다.
+
+	// Object 객체에 create 라는 메소드를 추가하고 	
+	// create 는 넘겨받은 객체를 prototype 으로 하는 새로운 객체를 생성한다.
+	 
+	if (typeof Object.create !== 'function') {
+		Object.create = function (o) {
+			var F = function () {};
+			F.prototype = o;
+			return new F();
+		};
+	}
+	
+	var another_stooge = Object.create(stooge);
+
+프로토타입 연결은 오로지 객체의 속성을 읽을 때만 사용한다.  
+해당 속성이 객체에 없는 경우 자바스크립트는 이 속성을 프로토타입 객체에서 찾으려고 한다.  
+이러한 시도는 프로토타입 체인(prototype chain)의 가장 마지막에 있는 `Object.prototype` 까지 계속 해서 이어 진다.
+ 
+프로토타입 관계는 동적 관계이다. 만약 프로토타입에 새로운 속성이 추가되면, 해당 프로토타입을 근간으로 하는 객체들에는 즉각적으로 이 속성이 나타난다.
+
+	stooge.profession = 'actor';
+	console.log(another_stooge.profession); 	// 'actor'
+	
+#### 06 | 리플렉션 (reflection)
+****
+typeof 연산자는 속성의 타입을 살펴 보는 데 유용하다.
+
+	typeof flight.number						// 'number'
+	typeof flight.status						// 'string'
+	typeof flight.arrival						// 'object'
+	typeof flight.manifest						// 'undefined'
+
+때때로 해당 객체의 속성이 아니라 프로토타입 체인 상에 있는 속성을 반환 할 수 있기 때문에 주의가 필요하다.
+
+	typeof flight.toString						// 'function'
+	typeof flight.constructor					// 'function'
+	
+리플렉션을 할 때 원하지 않는 속성을 배제 하기 위한 두 가지 방법.
+
+1. 함수값을 배체 하는 방법.
+		
+		if (typeof !== 'function') {
+			// skip
+		}
+		else {
+			// operation
+		}
+
+2. 객체에 특성 속성이 있는지를 확인하여 true/false 값을 반화는 `hasOwnProperty' 메소드를 사용하는 방법.  
+(hasOwnProperty 메소드는 프로토타입 체인을 바라 보지 않는다.)  
+	
+		flight.hasOwnProperty('number');		// true
+		flight.hasownProperty('constructor');	// true
+		
+#### 07 | 열거 (Enumeration)
+****
+for in 구분을 사용하면 객체에 있는 모든 속성의 이름을 열거 할 수 있다.  
+원하지 않는 속성을 걸러낼 때 가장 일반적인 필터링 방법은 hasOwnProperty 메소드와 함수를 배제 하기 위해 typeof 를 사용 한다.
+	
+	// (주의) 속성들이 이름순으로 나온다는 보장 없음.
+	var name;
+	for (name in another_stooge) {
+		if (typeof another_stooge[name] !== 'function') {
+			console.log(name + ': ' + another_stooge[name]);
+		}
+	}
+	
+만약 특정 순으로 속성 이름들이 열거되기를 원한 다면 for in 구문을 사용하지 말고 아래와 같이 사용해라.
+
+	var i;
+	
+	// 원하는 순서를 특정 배열로 지정
+	var properties = [
+		'first-name',
+		'middle-name',
+		'last-name',
+		'profession'
+	];
+	
+	// 원하는 손서대로 속성들을 리플렉션
+	for (i = 0; i < properties.length; i += 1) {
+		console.log(proerties[i] + ': ' + another_stooge[properties[i]]);
+	}
+
+#### 08 | 삭제
+delete 연산자를 사용하면 객체의 속성을 삭제 할 수 있다. (프로토타입 연결 상에 있는 객체들은 접근 하지 않는다.)
+
+객체에서 특정 속성을 삭제했는 데 같은 이름의 속성이 프로토타입 체인에 있는 경우 프로토타입의 속성이 나타난다.
+
+	another_stooge.nickname						// 'Moe'
+	
+	// another_stooge 에서 nickname 을 제거 하면
+	// 프로토타입에 있는 nickname 이 나타남.
+	delete another_stooge.nickname;
+	
+	another_stooge.nickname						// 'Curly'
+	
+#### 09 | 최소한의 전역 변수 사용
+전역 변수는 프로그램의 유연성을 약화하기 때문에 가능하면 피해라.
+
+**전역 변수 사용을 최소화 하는 방법은
+애플리케이션에서 전역 변수 사용을 위해 다음과 같이 전역 변수 하나를 만드는 것이다.**
+
+	// 전역 변수를 위한 컨테이너 선언
+	var MYAPP = {};
+	
+	MYAPP.stooge = {
+		'first-name': 'Joe',
+		'last-name': 'Howard'
+	};
+	
+	MYAPP.flight = {
+		airline: 'Oceanic',
+		number: 815,
+		departure: {
+			IATA: 'SYD',
+			time: '2014-09-22 14:55',
+			city: 'Sydney'
+		},
+		arrival: {
+			IATA: 'LAX',
+			time: '2014-09-23 10:42',
+			city: 'Los Angeles'
+		}
+	};
+	
+이러한 방법으로 애플리케이션에 필요한 전역변수를 이름 하나로 관리 하면 다른 애플리케이션이나 위젯 또는 라이브러리들과 연동 할 때 발생하는 문제점을 최소화 할 수 있다.
+		
 
 ### 4. 함수
 
