@@ -1060,7 +1060,7 @@ get_status 는 status 매개변수의 복사본에 접근할 수 있는 권한�
 
 이러한 것이 가능한 것은 함수가 자신이 생성된 함수, 즉 자신을 내포하는 함수의 문백(context)네 접근할 수 있기 때문이다.
 
-### 이러한 것을 클로저(closure)라고 부른다.
+### 이것을 클로저(closure)라고 부른다.
 
 	// quo 라는 함수를 생성.
 	// 이 함수는 get_status 라는 메소드와
@@ -1111,8 +1111,9 @@ fade 함수는 이미 반환 됐지만 함수 안의 변수는 이를 필요로 
 내부 함수가 외부 함수에 있는 변수의 복사본이 아니라 실제 변수에
 접근한다는 것을 이해해야 한다. 그렇지 않으면 다음과 같은 문제가 발생 할 수 있다.
 
-나쁜 예제
-	
+add_the_handlers 함수는 각각의 핸들러에 유일한 번호(i)를 전달하도록 고안됐다.<br>
+하지만 이러한 의도대로 동작하지 않는 데 그 이유는 핸들러 함수가 받는 i 가 함수가 만들어지는 시점의 i가 아니라 그냥 변수 i에 연결되기 때문이다.
+
 	// 나쁜 예제
 
 	// 잘못된 방법으로 노드 배열에 이벤트 핸들러 함수를 할당하는 함수 정의.
@@ -1123,7 +1124,7 @@ fade 함수는 이미 반환 됐지만 함수 안의 변수는 이를 필요로 
 		var i;
 		for (i = 0; i < nodes.length; i += 1) {
 			nodes[i].onclick = function (e) {				// onclick 에 함수 할당
-				alert(i);
+				alert(i);									// for loop 이후 마지막 i 값이 리턴됨.
 			};
 		}
 	};
@@ -1146,10 +1147,89 @@ fade 함수는 이미 반환 됐지만 함수 안의 변수는 이를 필요로 
 	};
 
 
+#### 11 | 콜백
+****
+함수는 비연속적인 이벤트를 다루는 것을 좀 더 쉽게 할 수 있는 방법을 제공한다.
+
+	// 동기식 (비추천)
+	// 서버의 응답이 올 때까지 기다린다.
+	request = prepare_the_request();
+	response = send_request_synchronously(request);
+	display(response);
 
 
+	// 비동기식 (추천)
+	// 서버의 응답을 기다리지 않고 그 즉시 반환된다.
+	// 응답이 왔을 때만 콜백 함수를 실행 한다.
+	request = prepare_the_request();
+	send_request_asynchronously(request, function (response) {
+		display(reponse);
+	});
 
+> 보통 Ajax 의 XmlHttpRequest를 사용하여 비동기적으로 서버에 요청 하는 예가 있다.
+
+	var req = new XMLHttpRequest();
+	req.open('GET', 'http://www.mozilla.org/', true);
+	req.onreadystatechange = function (aEvt) {
+		if (req.readyState == 4) {
+			if(req.status == 200)
+				dump(req.responseText);
+			else
+				dump("Error loading page\n");
+		}
+	};
+	req.send(null);
+
+#### 12 | 모듈
+****
+함수와 클로저를 사용해서 모듈을 만들 수 있다.<br>
+모듈을 만들기 위해서 함수를 사용하면 전역변수 사용을 거의 대부분 제거할 수 있기 때문에 결국 자바스크립트의 최대 약점 중 하나를 보완할 수 있다.
+
+> 모듈이란? 내부의 상태나 구현 내용은 숨기고 인터페이스만 제공하는 함수나 객체이다.
+
+문자열에서 HTML 엔티티들을 찾고 이들을 그에 상응하는 문자로 대체 하는 모듈의 예제
+
+	String.method('deentityify', function() {
+		var entity = {
+			quot: '"',
+			lt: '<',
+			qt: '>'
+		};
+
+		// deentityify 메소드 반환.
+		return function () {
+			// 여기가 deentityify 메소드
+			// 문자열의 replace 메소드를 호출하여 &로 시작하고 ;로 끝나는
+			// 부분을 찾고 &와 ; 사이의 문자열이 엔티티 테이블에 있으면
+			// 해당 문자로 엔티티를 대체. 정규 표현식 사용 (7장 참조).
+
+			return this.replace(/&([^&;]+);/g, function (a,b) {
 	
+				console.log('a = [' + a + '], b = [' + b + ']');
+
+				var r = entity[b];
+				return typeof r === 'string' ? r : a;
+			});
+		};
+	}());									// 함수를 바로 호출 한다.
+											// 이 호출로 deentityify 메소드가 되는 
+											// 함수를 생성해서 반환한다.
+
+	document.writeln('&lt;&quot;&qt;'.deentityify());	// <"> 
+.
+	a = [&lt;], b = [lt]
+	a = [&quot;], b = [quot]
+	a = [&qt;], b = [qt]
+
+모듈 패턴은 바인딩과 private 을 위해 함수의 유효범위와 클로저를 이용한다.<br>
+이 예제에서는 deentityify 메소드만이 엔티티들을 담고 있는 데이터 구조인 entity 객체에 접근 할 수 있다.
+
+> string.replace(regexp, replacement) <br>
+> reqexp : 교체할 패턴을 지정하는 RegExp 객체이다.<br>
+> replacement : 기존 문자열을 대체할 텍스트 문자열이거나 대체할 텍스트를 반환하는 함수이다.<br>
+> 반환값 : regexp의 첫 번째 매치 혹은 모든 매치를 replacement로 교체한 새 문자열<br>
+> replacement 가 문자열이면 각 매치는 주어진 문자열로 교체 된다.<br>
+> replacement 가 함수이면 첫번째 인자는 패턴에 매치된 문자열, 두번째 인자는 패턴표현식에 매치된 문자열들이다.<br>
 
 ### 5. 상속
 
