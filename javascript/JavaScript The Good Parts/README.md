@@ -716,11 +716,11 @@ delete 연산자를 사용하면 객체의 속성을 삭제 할 수 있다. (프
 
 함수 호출 패넌을 호출 할때 `this`는 전역객체에 바인딩된다.
 
-> 이런 특성은 언어 설계 단계에서의 실수이다.
-> 만약 언어를 바르게 설계 했다면, 내부 함수를 호출 할때 이 함수의 this는 외부 함수의 this 변수에 바인딩 되어야 한다.
-> 이러한 오류의 결과는 메소드가 내부 함수를 사용하여 자신의 작업을 돕지 못한다는 것이다.
-> 왜냐하면, 내부 함수는 메소드가 객체 접근을 위해 사용하는 this에, 자신의 this를 바인딩하지 않고 엉뚱한 값(전역객체)에 연결하기 때문이다.
-> 이런 문제애 대한 대안은 메소드에서 변수를 정의한 후 여기에 this를 할당하고, 내부 함수는 이 변수를 통해서 메소드의 this에 접근하는 방법이 있다.
+> 이런 특성은 언어 설계 단계에서의 실수이다.<br>
+> 만약 언어를 바르게 설계 했다면, 내부 함수를 호출 할때 이 함수의 this는 외부 함수의 this 변수에 바인딩 되어야 한다.<br>
+> 이러한 오류의 결과는 메소드가 내부 함수를 사용하여 자신의 작업을 돕지 못한다는 것이다.<br>
+> 왜냐하면, 내부 함수는 메소드가 객체 접근을 위해 사용하는 this에, 자신의 this를 바인딩하지 않고 엉뚱한 값(전역객체)에 연결하기 때문이다.<br>
+> 이런 문제애 대한 대안은 메소드에서 변수를 정의한 후 여기에 this를 할당하고, 내부 함수는 이 변수를 통해서 메소드의 this에 접근하는 방법이 있다<br>.
 > 관례상 이 변수의 이름을 that 이라고 하면 다음의 예와 같이 구현 할 수 있다.
 
 	// 위 myObject 에 double 메소드를 추가
@@ -827,6 +827,294 @@ apply 메소드에는 매개변수 두개가 있다.
 > `arguments` 는 `배열 같은 객체`이다.<br>
 > 왜냐하면 `arguments` 는 `length` 라는 속성이 있지만 모든 배열이 가지는 메소드들은 없다.
 
+#### 05 | 반환
+****
+반환값이 지정되지 않은 경우에는 undefined 가 반환된다.<br>
+함수를 new 라는 전치 연산자와 함께 실행하고 반환값이 객체가 아닌 경우 반환값은 `this (새로운 객체)`가 된다.
+
+#### 06 | 예외
+****
+비정상적인 사고가 발생하면 프로그램은 예외를 발생한다.
+
+	var add = function (a, b) {
+		if (typeof a !== 'number' || typeof b !== 'number') {
+			throw {
+				name: 'TypeError',
+				message: 'add needs numbers'
+			};
+		}
+
+		return a + b;
+	}
+
+throw 문은 함수의 실행을 중단한다.<br>
+throw 문은 어떤 예외인지 알 수 있게 해주는 name, message 속성을 가진 객체를 반환해야 한다.<br>
+(물론 속성를 더 추가 할 수 있다.)
+
+	// 새로운 add 함수를 `잘못된 방법으로 호출`하는 try_it 함수 작성
+	var try_it = function () {
+		try {
+			add('seven');								// 위 add 의 매개변수는 number
+		}
+		catch (e) {
+			console.log(e.name + ': ' + e.message);
+		}
+	}
+
+	try_it();
+
+#### 07 | 기본 타입에 기능 추가
+****
+자바스크립트는 언어의 기본 타입에 기능을 추가하는 것을 허용한다.<br>
+앞선 3장에서 Object.prototype 에 메소드를 추가하여 모든 객체에서 이 메소드를 사용 가능하게 하는 것을 보았다.<br>
+이러한 작업은 `함수`, `배열`, `문자열`, `숫자`, `정규 표현식`, `불리언`에 모두 유효하다.
+
+	// Function.prototype 에 method 를 추가하여 모든 함수에서 이 메소드를 사용 할 수 있게 함.
+	Function.prototype.method = function (name, func) {
+		this.prototype[name] = func;
+		return this;
+	};
+
+위와 같이 메소드를 추가 하면 Function.prototype에 메소드를 추가할 때 (.prototype) 부분 없이 깔끔하게 사용 할 수 있다.
+
+	Number.method('integer', function () {
+		return Math[this < 0 ? 'ceiling' : 'floor'](this);
+	});
+
+	console.log((-10 / 3).integer());					// -3
+
+문자열의 양 끝에 있는 빈칸을 지우는 메소드 추가.
+
+	String.method('trim', function () {
+		return this.replace(/^\s+|\s+$/g, '');
+	});
+
+	console.log('"' + "      neat    ".trim() + '"');	// 문자열에서 바로 사용 가능 하다.
+
+이러한 프로토타입에 의한 상속은 해당값이 새로운 메소드가 추가되기 전에 생성됐더라도 관계없이 적용된다.
+
+	// 조건에 따라 메소드를 추가.
+	// 존재하지 않는 메소드만 추가.
+	Function.prototype.method = function (name, func) {
+		if (!this.prototype[name]) {
+			this.prototype[name] = func;
+		}
+	};
+
+#### 08 | 재귀적 호출
+****
+일반적으로 재귀 함수는 하위 문제를 처리하기 위해 자신을 호출한다.
+
+	// 하노이 탑
+	var hanoi = function (disc, src, aux, dst) {
+		if (disc > 0) {
+			hanoi(disc - 1, src, dst, aux);
+			console.log('Move disc ' + disc + ' from ' + src + ' to ' + dst);
+			hanoi(disc - 1, aux, src, dst);
+		}
+	};
+
+	hanoi(3, 'Src', 'Aux', 'Dst');
+
+재귀 함수는 웹 브라우저의 DOM(Document Object Model) 같은 트리 구조를 다루는 데 매우 효과적이다.<br>
+즉 각각의 재귀적 호출이 트리 구조의 항목 하나에 대해 작동하면 효율적인 트리 구조를 다룰 수 있다.
+
+	// 주어진 노드부터 HTML 소스 순으로 DOM 트리의
+	// 모든 노드를 방문하는 walk_the_DOM 함수 정의.
+	// 이 함수는 차례로 각각의 노드를 넘기면서 함수를 호출.
+	// walk_the_DOM은 각각의 자식 노드들을 처리하기 위해서 자신을 호출함.
+
+	var walk_the_DOM = function walk(node, func) {
+		func(node);
+		node = node.firstChild;
+		while (node) {
+			walk(node, func);
+			node = node.nextSibling;
+		}
+	};
+
+	// getElementsByAttribute 함수 정의.
+	// 이 함수는 어트리뷰트 이름(att)과 일치하는 값(value, 이 값은 넘기지 않아도 되는 옵션임)을 인수로 받음.
+	// 이 함수는 노드에서 어트리뷰트 이름을 찾는 함수를 전달하면서
+	// walk_the_DOM 을 호출.
+	// 일치하는 노드는 results 배열에 저장됨.
+
+	var getElementsByAttribute = function (att, value) {
+		var result = [];
+
+		walk_the_DOM(document.body, function (node) {
+			var actual = node.nodeType === 1 && node.getAttribue(att);
+			if (typeof actual === 'string' &&
+					(actual === value || typeof value !== 'string')) {
+				results.push(node);
+			}
+		});
+
+		return results;
+	};
+
+아래는 tail recursion 방식으로 자바스크립트에서는 반환 스택의 과다 사용으로 제대로 실행 안될 수 있다.<br>
+(자신을 매우 깊은 단계까지 호출 할 경우)
+
+	// tail 재귀를 하는 계승(factorial) 함수를 만듦.
+	// 호출 자체의 결과를 반환하기 때문에 tail 재귀임.
+
+	// 현재 자바스크립트는 이러한 유형에 대해 최적화를 제공하지 않음.
+	var factorial = function factorial(i, a) {
+		a = a || 1;
+		if (i < 2) {
+			return a;
+		}
+		return factorial(i-1, a * i);
+	};
+
+	console.writeln(factorial(4));						// 24	
+
+#### 09 | 유효범위(Scope)
+****
+프로그래밍 언어에서 유효범위는 변수와 매개변수의 접근성과 생존 기간을 제어한다.<br>
+(이름들이 충돌하는 문제를 덜어주고 자동으로 메모리를 관리한다.)
+
+	var foo = function () {
+		var a = 3, b = 5;
+		var bar function () {
+			var b = 7, c = 11;
+
+			// 이 시점에서 a는 3, b는 7, c는 11
+			a += b + c;
+
+			// 이 시점에서 a는 21, b는 7, c는 11
+		};
+
+		// 이 시점에서 a는 3, b는 5, c는 정의되지 않음.
+		bar();
+
+		// 이 시점에서 a는 21, b는 5
+	};
+
+C 에서는 블록내에서 정의된 변수는 블록의 실행이 끝나면 해제 된다.<br>
+그러나<br>
+자바스크립트에서는 지원하는 듯 보이나 블록 구조를 지원하지 않는 다.<br>
+
+자바스크립트는 함수 유효범위가 있으며, 함수에서 사용하는 모든 변수는 함수의 첫 부분에 선어하는 게 좋다.
+
+	// C 예제
+	#include <stdio.h>
+
+	int main() {
+		int a = 0;
+
+		// 블록
+		{
+			int b = 1;
+			printf ("%d\n", a + b);
+		}
+
+		return 0;
+	}
+
+
+#### 10 | 클로저(closure)
+****
+유효범위에 관한 좋은 소식 하나는 내부 함수에서 자신을 포함하고 있는 외부 함수의 매개변수와 변수들을 접근할 수 있다는 것이다. (this 와 arguments는 예외)
+
+	// results 라는 변수를 walk_the_DOM 의 인수로 넘긴 (내부) 함수에서 접근하고 있다.
+	var getElementsByAttribute = function (att, value) {
+		var result = [];
+
+		walk_the_DOM(document.body, function (node) {
+			var actual = node.nodeType === 1 && node.getAttribue(att);
+			if (typeof actual === 'string' &&
+					(actual === value || typeof value !== 'string')) {
+				results.push(node);
+			}
+		});
+
+		return results;
+	};
+
+아래 예제의 경우는 myObject 객체에서 허락되지 않은 경우에는 value 속성의 값을 변경 할 수 없도록 한다.
+(유효 범위 때문에 value 라는 변수는 메소드에 의해서만 접근 가능하다.)
+
+	var myObject = function () {
+		var value = 0;
+
+		// 객체 리터럴을 반환한다. (메소드 2개를 가진 객체 반환)
+		return {
+			increment: function (inc) {
+				value += typeof inc === 'number' ? inc : 1;
+			},
+			getValue: function () {
+				return value;
+			}
+		};
+	}(); 	// 함수를 호출한 결과를 할당 하고 있다. (함수를 할당 하는 게 아님)
+
+아래 quo 함수는 new 키워드 없이 사용하게 설계됐다. <br>
+quo를 호출하면 get_status 메소드가 있는 객체를 반환한다.<br>
+이 객체에 대한 참조는 myQuo에 저장된다.<br>
+get_status 메소드는 quo가 이미 반환된 뒤에서 quo의 status에 접근할 수 있는 권한을 가지게 된다.<br>
+
+get_status 는 status 매개변수의 복사본에 접근할 수 있는 권한을 갖는 것이 아니라<br>
+매개변수 그 자체에 대한 접근 권한을 갖는다.<br>
+
+이러한 것이 가능한 것은 함수가 자신이 생성된 함수, 즉 자신을 내포하는 함수의 문백(context)네 접근할 수 있기 때문이다.
+
+### 이러한 것을 클로저(closure)라고 부른다.
+
+	// quo 라는 함수를 생성.
+	// 이 함수는 get_status 라는 메소드와
+	// status 라는 private 속성을 가진 객체를 반환.
+	var quo = function (status) {
+		return {
+			get_status: function () {
+				return status;
+			}
+		};
+	};
+
+	// quo 의 인스턴스를 생성.
+	var myQuo = quo('amazed');
+	
+	console.log(myQuo.get_status());
+
+유용한 예제
+
+	// DOM 노드의 색을 노란색으로 지정하고 흰색으로 사라지게 하는 함수 정의.
+	var fase = function (node) {
+		var level = 1;
+		var step = function () {
+			var hex = level.toString(16);
+
+			node.style.backgroundColor = '#FFFF' + hex + hex;
+			if ( level < 15) {
+				level += 1;
+				setTimeout(step, 100);
+			}
+		};
+		setTimeout(step, 100);
+	};
+
+	fade(document.body);
+
+1. document.body (html 태그)를 넘기면서 fade를 호출
+2. fade 는 level 의 값을 1로 설정, step 이라는 함수 정의
+3. fade 는 setTimeout을 호출 후 종료
+4. 1/10 초 뒤 step 함수 호출
+5. step 은 level 값을 16진수로 변경
+6. step 은 level 값이 15 보다 작으면 level 값을 증가 시킨 후 setTimeout 으로 같은 작업 반복
+7. (중요) 1/10 초 뒤 step 에서 참조 하는 값은 level = 2 가 된다.
+
+		fade 함수는 이미 반환 됐지만 함수 안의 변수는 이를 필요로 하는 내부 함수가
+		하나 이상 존재 하는 경우 계속 유지 된다.
+
+
+
+
+
+
+
+	
 
 ### 5. 상속
 
