@@ -1103,12 +1103,47 @@ get_status 는 status 매개변수의 복사본에 접근할 수 있는 권한�
 4. 1/10 초 뒤 step 함수 호출
 5. step 은 level 값을 16진수로 변경
 6. step 은 level 값이 15 보다 작으면 level 값을 증가 시킨 후 setTimeout 으로 같은 작업 반복
-7. (중요) 1/10 초 뒤 step 에서 참조 하는 값은 level = 2 가 된다.
+7. 1/10 초 뒤 step 에서 참조 하는 값은 level = 2 가 된다.
 
-		fade 함수는 이미 반환 됐지만 함수 안의 변수는 이를 필요로 하는 내부 함수가
-		하나 이상 존재 하는 경우 계속 유지 된다.
+fade 함수는 이미 반환 됐지만 함수 안의 변수는 이를 필요로 하는 내부 함수가<br>
+하나 이상 존재 하는 경우 계속 유지 된다.
 
+내부 함수가 외부 함수에 있는 변수의 복사본이 아니라 실제 변수에
+접근한다는 것을 이해해야 한다. 그렇지 않으면 다음과 같은 문제가 발생 할 수 있다.
 
+나쁜 예제
+	
+	// 나쁜 예제
+
+	// 잘못된 방법으로 노드 배열에 이벤트 핸들러 함수를 할당하는 함수 정의.
+	// 노드를 클릭하면 해당 노드가 몇 번째 노드인지를 경고창으로 알려 주는 것이
+	// 함수의 목적.
+	// 하지만 항상 전체 노드의 수만을 보여줌.
+	var add_the_handlers = function (nodes) {
+		var i;
+		for (i = 0; i < nodes.length; i += 1) {
+			nodes[i].onclick = function (e) {				// onclick 에 함수 할당
+				alert(i);
+			};
+		}
+	};
+
+	// 나쁜 예제 끝
+
+	// 더 나은 예제
+
+	// 올바른 방법으로 노드 배열에 이벤트 핸들러 함수를 할당하는 함수 정의.
+	// 노드를 클릭하면 해당 노드가 몇 번째 노드인지를 경고창으로 알려줌.
+	var add_the_handlers = function (nodes) {
+		var i;
+		for (i = 0; i < nodes.length; i += 1) {
+			nodes[i].onclick = function (i) {				// onclick 에 새로운 함수를 정의하면서 곧 바로 실행
+				return function (e) {
+					alert(i);
+				};
+			}(i);
+		}
+	};
 
 
 
