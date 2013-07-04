@@ -15,26 +15,26 @@ Node는 이벤트 기능이 완료되는 것을 기다리는 동안 다른 요�
 Python이 설치되어 있지 않으면 Python을 먼저 설치해야 된다.
 그외 필요한 라이브러리 설치되어 있는 지 확인한다.
 
-> $sudo apt-get update
-> $sudo apt-get upgrade
-> $sudo apt-get install build-essential openssl libssl-dev pkg-config
+> $sudo apt-get update<br>
+> $sudo apt-get upgrade<br>
+> $sudo apt-get install build-essential openssl libssl-dev pkg-config<br>
 
 Node를 다운로드 한다.
 
-> $wget http://nodejs.org/dist/v0.10.12/node-v0.10.12.tar.gz
-> $tar -zxf node-v0.10.12.tar.gz
-> $./configure
-> $make
-> $sudo make install
+> $wget http://nodejs.org/dist/v0.10.12/node-v0.10.12.tar.gz<br>
+> $tar -zxf node-v0.10.12.tar.gz<br>
+> $./configure<br>
+> $make<br>
+> $sudo make install<br>
 
 혹시 원할경우 루트 없이 지정된 로컬하위 디렉토리에 설치하는 방법도 있다.
 
-> $mkdir ~/working
-> $./configure --prefix=~/working
-> $make
-> $make install
-> $echo 'export PATH=~/working/bin:${PATH}' >> ~/.bashrc
-> $~/.bashrc
+> $mkdir ~/working<br>
+> $./configure --prefix=~/working<br>
+> $make<br>
+> $make install<br>
+> $echo 'export PATH=~/working/bin:${PATH}' >> ~/.bashrc<br>
+> $~/.bashrc<br>
 
 #### Window 7에서 WebMatrix와 Node의 짝짓기
 
@@ -47,19 +47,17 @@ Node를 다운로드 한다.
 예제 1-1. Node에서의 Hello, World
 
 
-> // http 모듈을 로드
-> var http = require('http');
-> 
-> // http 서버를 생성
-> http.createServer(function (req, res) {
-> 
-> 	// 컨텐츠 해더
-> 	res.writeHead(200, {'content-type': 'text/plain'});
-> 
-> 	// 메시지를 쓰고 통신이 완료되었다는 신호를 보냄
-> 	res.end('Hello, World!\n');
-> }).listen(8124);
-> 
-> console.log('Server running on 8124');
-
-
+> // http 모듈을 로드<br>
+> var http = require('http');<br>
+> <br>
+> // http 서버를 생성<br>
+> http.createServer(function (req, res) {<br>
+> <br>
+> 	// 컨텐츠 해더<br>
+> 	res.writeHead(200, {'content-type': 'text/plain'});<br>
+> <br>
+> 	// 메시지를 쓰고 통신이 완료되었다는 신호를 보냄<br>
+> 	res.end('Hello, World!\n');<br>
+> }).listen(8124);<br>
+> <br>
+> console.log('Server running on 8124');<br>
