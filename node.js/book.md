@@ -46,18 +46,17 @@ Node를 다운로드 한다.
 
 예제 1-1. Node에서의 Hello, World
 
-"'
-> // http 모듈을 로드<br>
-> var http = require('http');<br>
-> <br>
-> // http 서버를 생성<br>
-> http.createServer(function (req, res) {<br>
-> <br>
-> 	// 컨텐츠 해더<br>
-> 	res.writeHead(200, {'content-type': 'text/plain'});<br>
-> <br>
-> 	// 메시지를 쓰고 통신이 완료되었다는 신호를 보냄<br>
-> 	res.end('Hello, World!\n');<br>
-> }).listen(8124);<br>
-> <br>
-> console.log('Server running on 8124');<br>
+	> // http 모듈을 로드<br>
+	> var http = require('http');<br>
+	> <br>
+	> // http 서버를 생성<br>
+	> http.createServer(function (req, res) {<br>
+	> <br>
+	> 	// 컨텐츠 해더<br>
+	> 	res.writeHead(200, {'content-type': 'text/plain'});<br>
+	> <br>
+	> 	// 메시지를 쓰고 통신이 완료되었다는 신호를 보냄<br>
+	> 	res.end('Hello, World!\n');<br>
+	> }).listen(8124);<br>
+	> <br>
+	> console.log('Server running on 8124');<br>
