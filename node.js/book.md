@@ -128,19 +128,46 @@ NoSQL 범주 내에서 구조화된 데이터는 통상적으로 매우 빠른 �
 		- 클러스터 지원.
 		- 빠른 액세스를 위해 데이터 쿼리를 메모리 상에 캐시하기 위한 수단으로 주로 사용된다.
 		- 대량의 쿼리를 처리하는 애플리케이션에는 유용하지만, 데이타를 쓰고 읽는 것이 많으면 Redis가 더 낫다.
+
 * [Redis](http://redis.io/)
+		
 		- Redis 는 단일 머신에서만 구동 된다.
 		- 영속적으로 저장 가능하며, 다양한 유형의 데이터를 지원한다.
+
 * [Cassandra](http://cassandra.apache.org/)
+		
 		- 클러스터 지원.
 		- 지원하는 데이터 구조가 제한.
 
-
-		
-
-
 ### Node 및 Redis 시작하기
 ===
+Redis를 지원하는 모듈에는 여러 개가 존재하지만 Matt Ranney가 만든 [node_redis](https://github.com/mranney/node_redis) (그냥 redis라고도 함)에 초첨을 맞춘다.
+
+* redis 모듈 설치
+
+	$npm install redis
+
+* hiredis 라이브러리 설치 (논블로킹이며 성능을 향상 시켜 준다.)
+
+	$npm install hiredis redis
+
+* 사용방법
+
+	// 모듈을 포함
+	var redis = require('redis');
+
+	// client 생성
+	// @param port (default 6379)
+	// @param host (default 127.0.0.1)
+	// @param option {
+	//	parser: Redis 프로토콜 응답 파서로 기본 값이 hiredis로 설정된다. javascript를 사용해도 된다.
+	//	return_buffers: 기본값은 false이다. true인 경우 모든 읃압은 문자열이 아닌 Node 버퍼 개체로 전송된다.
+	//	detect_buffers: 기본값은 false이다. true인 경우 원래 명령에 입력된 것이 버퍼이면 응답이 버퍼 개체로 전송된다.
+	//	socket_nodely: 기본값은 true로, TCP 스트림에 setNoDelay를 호출할지 여부를 지정한다.
+	//	no_ready_check: 기본값은 false이다. true로 설정하면 다른 명령을 처리할 수 있도록 준비되었는지를 확인하기 위해 서버로 'ready check'를 전송하는 것을 중단한다.
+	//	}
+	var client = redis.createClient();
+
 
 
 
