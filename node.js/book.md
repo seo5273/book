@@ -202,15 +202,45 @@ Redis를 지원하는 모듈에는 여러 개가 존재하지만 Matt Ranney가 
 
 ### 게임 순위표 만들기
 ===
-TCP 클라이언트를 실행할 때 Redis 데인터베이스에 저장될 정보를 나타내는 JSON을 전송한다.
+TCP 클라이언트를 실행할 때 Redis 데이터베이스에 저장될 정보를 나타내는 JSON을 전송한다.
 
 예제
 
-	{'member': 400, 'first_name': 'Ada', 'last_name': 'Lovelace', 'score': 53455, 'date': '10/10/1840'}
+	{"member": 400, "first_name": "Ada", "last_name": "Lovelace", "score": 53455, "date": "10/10/1840"}
 
 서버는 수신한 데이터 문자열을 자바스크립트 객체로 변환하고, 해시로 저장된 개별 멤버들에 접근하도록 한다.
 
-예제 9-1. Redis 데이터저장소를 업데이트는 TCP 서버
+예제 9-0. 데이터를 요청하는 TCP 클라이언트
+
+	var net = require('net');
+
+	var client = new net.Socket();
+	client.setEncoding('utf8);
+
+	// connect to TCP server
+	client.connect('8124', '127.0.0.1', function () {
+		console.log('connected to server');
+	});
+
+	// prepare for input from terminal
+	process.stdin.resume();
+
+	// when receive data, send to server
+	process.stdin.on('data', function(data) {
+		client.write(data);
+	});
+
+	// when receive data back, print to sonsole
+	client.on('data', function(data) {
+		console.log(data);
+	});
+
+	// when server closed
+	client.on('close', function () {
+		console.log('connection is closed');
+	});
+
+예제 9-1. Redis 데이터저장소를 업데이트하는 TCP 서버
 
 	var net = require('net');
 	var redis = require('redis');
@@ -283,11 +313,81 @@ TCP 클라이언트를 실행할 때 Redis 데인터베이스에 저장될 정�
 										td #{score.first_name} #{score.last_name}
 										td #{score.date}
 
+예제 9-3. 게임 상위 득점 서비스
 
+	var http = require('http');
+	var async = require('async');
+	var redis = require('redis');
+	var jade = require('jade');
+	
+	// Jade 템플릿 구성
+	var layout = require('fs').readFileSync(__dirname + '/score.jade', 'utf8');
+	var fn = jade.compile(layout, {filename: __dirname + '/score.jade'});
+	
+	// Redis 클라이언트 시작
+	var client = redis.createClient();
+	
+	// 5번째 데이터베이스 선택
+	client.select(5);
+	
+	// 도우미 함수
+	function makeCallbackFunc(member) {
+		return function(callback) {
+			client.hgetall(member, function(err, obj) {
+				callback(err, obj);
+			});
+		};
+	}
+	
+	http.createServer(function(req,res) {
+	
+		// 먼저 아이콘 요청을 필터링
+		if (req.url === '/favicon.ico') {
+			res.writeHead(200, {'Content-Type': 'image/x-icon'});
+			res.end();
+			return;
+		}
+	
+		// 상위 5명에 대해 점수를 역순으로 가져옴
+		client.zrevrange('Zowie!', 0, 4, function(err, result) {
+			var scores;
+			if (err) {
+				conosle.log(err);
+				res.end('Top scores not currently available, please check back');
+				return;
+			}
+	
+			// Async.series 호출에 대한 콜백 함수 배열을 생성
+			var callFunctions = new Array();
+	
+			// makeCallbackFunc로 결과를 처리하고
+			// 새롭게 반환된 콜백을 배열에 push
+			for (var i = 0; i < result.length; i++) {
+				callFunctions.push(makeCallbackFunc(result[i]));
+			}
+	
+			// Async series를 사용하여 각 콜백을 순차적으로 처리하고
+			// 최종 결과를 개체 배열로 반환
+			async.series(
+				callFunctions,
+				function (err, result) {
+					if (err) {
+						console.log(err);
+						res.end('Scores not available');
+						return;
+					}
+	
+					//템플릿 엔진에게 개체 배열 전달
+					var str = fn({scores: result});
+					res.end(str);
+				});
+		});
+	}).listen(3000);
+	
+	console.log('Server running on 3000/');
 
-
-
-
-
-
-
+### 메시지 큐 만들기
+===
+메시지 큐(message queue)는 특정한 통신 형식을 입력으로 받아 큐에 저장하는 애플리케이션이다.<br>
+메세지는 수신자가 가져갈 때까지 저장되었다가, 해당 시점에 큐에서 뽑혀져서 수신자에게 (하나or대량으로) 전송된다.<br>
+통신은 비동기로 이루어진다.
