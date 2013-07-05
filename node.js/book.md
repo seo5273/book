@@ -160,11 +160,13 @@ Redis를 지원하는 모듈에는 여러 개가 존재하지만 Matt Ranney가 
 		// @param port (default 6379)
 		// @param host (default 127.0.0.1)
 		// @param option {
-		//	parser: Redis 프로토콜 응답 파서로 기본 값이 hiredis로 설정된다. javascript를 사용해도 된다.
-		//	return_buffers: 기본값은 false이다. true인 경우 모든 읃압은 문자열이 아닌 Node 버퍼 개체로 전송된다.
-		//	detect_buffers: 기본값은 false이다. true인 경우 원래 명령에 입력된 것이 버퍼이면 응답이 버퍼 개체로 전송된다.
-		//	socket_nodely: 기본값은 true로, TCP 스트림에 setNoDelay를 호출할지 여부를 지정한다.
-		//	no_ready_check: 기본값은 false이다. true로 설정하면 다른 명령을 처리할 수 있도록 준비되었는지를 확인하기 위해 서버로 'ready check'를 전송하는 것을 중단한다.
+		//	parser			: Redis 프로토콜 응답 파서로 기본 값이 hiredis로 설정된다. javascript를 사용해도 된다.
+		//	return_buffers	: 기본값은 false이다. true인 경우 모든 읃압은 문자열이 아닌 Node 버퍼 개체로 전송된다.
+		//	detect_buffers	: 기본값은 false이다. true인 경우 원래 명령에 입력된 것이 버퍼이면 응답이 버퍼 개체로 전송된다.
+		//	socket_nodely	: 기본값은 true로, TCP 스트림에 setNoDelay를 호출할지 여부를 지정한다.
+		//	no_ready_check	: 기본값은 false이다. 
+		//					true로 설정하면 다른 명령을 처리할 수 있도록 준비되었는지를 확인하기 위해 서버로 
+		//					'ready check'를 전송하는 것을 중단한다.
 		//	}
 		var client = redis.createClient();
 
