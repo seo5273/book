@@ -1,4 +1,4 @@
-### CHAPTER 1 | Node.js: 처음 실행하기
+## CHAPTER 1 | Node.js: 처음 실행하기
 ===
 Node.js는 Google의 V8 JavaScript 엔진에 기반한 서버 측 기술이다.<br>
 쓰레드나 별도 프로세스 대신 비동기 이벤트 위주 I/O(input/outpu)을 사용하는 고도의 확장성을 가진 시스템으로,<br>
@@ -70,3 +70,76 @@ Node를 다운로드 한다.
 ===
 
 #### 비동기로 파일 읽기
+
+예제 1-2. 파일 내용을 비동기로 읽고 쓰기
+
+	
+	// http 모듈 로드
+	var http = require('http');
+	var fs = require('fs');
+	
+	// http 서버 생성
+	http.createServer(function (req, res) {
+	
+		// helloworld.js를 열고 읽음
+		fs.readFile('helloworld.js', 'utf8', function(err, data) {
+	
+			res.writeHead(200, {'Content-type': 'text/plain'});
+			if (err) {
+				res.write('Could not find or open file for reading\n');
+			}
+			else {
+				// 오류가 없으면 JS 파일을 클라이언트에게 쏜다.
+				res.write(data);
+			}
+	
+			res.end();
+		});
+	}).listen(8124, function() {
+		console.log('bound to port 8124');
+	});
+	
+	console.log('Server running on 8124');
+
+#### 비동기 프로그램 흐름 살펴보기
+
+예제 1-3. 일련의 숫자와 파일 내용을 출력하는 새로운 서비스
+
+
+예제 1-4. 새로 만든 Node 애플리케이션을 2,000번 호출하는 간단한 애플리케이션
+
+### Node의 이점
+===
+
+## CHAPTER 2. | REPL을 통한 대화형 Node
+===
+
+### REPL: 처음 살펴보기 & 정의되지 않은 수식
+===
+
+
+## CHAPTER 9. | Node와 Redis를 사용한 구조화된 데이터
+===
+NoSQL 범주 내에서 구조화된 데이터는 통상적으로 매우 빠른 액세르를 위해 메모리 상에 저장되는 `키/값` 쌍을 기반으로 한다.<br>
+메모리 내의 `키/값` 쌍 저장소로 가장 유명한 세가지는 Memcached, Cassandra, Redis 이다.
+
+* [Memcached](http://memcached.org/)
+		- 클러스터 지원.
+		- 빠른 액세스를 위해 데이터 쿼리를 메모리 상에 캐시하기 위한 수단으로 주로 사용된다.
+		- 대량의 쿼리를 처리하는 애플리케이션에는 유용하지만, 데이타를 쓰고 읽는 것이 많으면 Redis가 더 낫다.
+* [Redis](http://redis.io/)
+		- Redis 는 단일 머신에서만 구동 된다.
+		- 영속적으로 저장 가능하며, 다양한 유형의 데이터를 지원한다.
+* [Cassandra](http://cassandra.apache.org/)
+		- 클러스터 지원.
+		- 지원하는 데이터 구조가 제한.
+
+
+		
+
+
+### Node 및 Redis 시작하기
+===
+
+
+
