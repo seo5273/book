@@ -170,6 +170,124 @@ Redis를 지원하는 모듈에는 여러 개가 존재하지만 Matt Ranney가 
 		//	}
 		var client = redis.createClient();
 
+		// 해시 속성을 설정한다.
+		// hset 명령은 값을 설정하는 것이므로 데이터는 반환되지 않고 Redis에서 익식했다는 것만 반환된다.
+		client.hset('hashid', 'propname', 'propvalue', function(err, reply) {
+			// 오휴 혹은 응담에 대해 무엇인가를 수행함.
+		});
+
+		// client.hvals 와 같이 여러 개의 값을 가져오는 메서드를 호출하면 콜백 함수의 두 번째 매개 변수는
+		// 단일 문자열의 배열이나 개체의 배열이 된다.
+		client.hvals(obj.member, function(err, replies) {
+			if (err) {
+				return console.error('error response - ' + err);
+			}
+
+			console.log(replies.length + ' replies:');
+			replies.forEach(function (reply, i) {
+				console.log('    ' + i + ': ' + reply);
+			});
+		});
+
+		// Node 콜백이 항상 존재하는데다, Redis 명령등 줄에서 성공 확인 응답만을 제공하는 동작들이
+		// 많으므로 redis 모듈은 마지막 매개변수로 전달 가능한 redis.print 메서드를 제공한다.
+		// 에러나 응답을 콘솔에 출력한 후 반환된다.
+		client.set('somekey', 'somevalue', redis.print);
+
+		// 연결 종료
+		client.quit();
+		
+		// or 강제 종료 : 애플리케이션에 문제가 있거나 처음부터 다시 시작하고자 할때만 호출하는 것이 좋다.
+		client.end();
+
+### 게임 순위표 만들기
+===
+TCP 클라이언트를 실행할 때 Redis 데인터베이스에 저장될 정보를 나타내는 JSON을 전송한다.
+
+예제
+
+	{'member': 400, 'first_name': 'Ada', 'last_name': 'Lovelace', 'score': 53455, 'date': '10/10/1840'}
+
+서버는 수신한 데이터 문자열을 자바스크립트 객체로 변환하고, 해시로 저장된 개별 멤버들에 접근하도록 한다.
+
+예제 9-1. Redis 데이터저장소를 업데이트는 TCP 서버
+
+	var net = require('net');
+	var redis = require('redis');
+
+	var server = net.createServer(function(socket) {
+		console.log('connected');
+
+		// Redis 클라이언트 생성
+		var client = redis.createClient();
+
+		client.on('error', function(err) {
+			console.log('Error ' + err);
+		});
+
+		// 5번째 데이터베이스가 게임 점수 데이터베이스라고 가정
+		client.select(5);
+		socket.on('data', function(data) {
+			console.log(data + ' from ' + socket.remoteAddress + ' ' + socket.remotePort);
+			try {
+				var obj = JSON.parse(data);
+
+				// 점수를 추가하거나 덮어씀
+				client.hset(obj.member, 'first_name', obj.first_name, redis.print);
+				client.hset(obj.member, 'last_name', obj.last_name, redis.print);
+				client.hset(obj.member, 'score', obj.score, redis.print);
+				client.hset(obj.member, 'date', obj.date, redis.print);
+
+				// Zowie! 게임에 대한 점수 추가
+				client.zadd('Zowie!', parseInt(obj.score), obj.member);
+			}
+			catch (err) {
+				console.log(err);
+			}
+		});
+
+		socket.on('close', function() {
+			console.log('client closed connection');
+			client.quit();
+		});
+	}).listen(8124);
+
+	console.log('listening on port 8124');
+
+> 두 개의 다른 데이터 저장소가 업데이트 된다.<br>
+> 개별적인 점수 정보는 hash에 저장되며, (멤버 ID는 hash에서 키로 사용됨.) <br>
+> 멤버 ID와 점수는 sorted set 에 저장된다. (게임 점수는 sorted set에서 멤버 ID에 해당하는 점수로 사용됨.)
+
+예제 9-2. 상위 5개의 점수를 표시하는 Jade 템플릿 파일
+	
+	doctype 5
+	html(lang='en')
+		head
+			title Zowie! Top Scores
+			meta(charset='utf-8')
+			|	<style type='text/css'>
+			include main.css
+			|	</style>
+		body
+			table
+				caption Zowie! Top Scores!
+					tr
+						th Score
+						th Name
+						th Date
+						if scores.length
+							each score in scores
+								if score
+									tr
+										td #{score.score}
+										td #{score.first_name} #{score.last_name}
+										td #{score.date}
+
+
+
+
+
+
 
 
 
